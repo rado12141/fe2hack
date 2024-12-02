@@ -6,6 +6,12 @@ if true then
         local sfb30BOK32v0 = loadstring(game:HttpGet('https://raw.githubusercontent.com/CF-Trail/random/refs/heads/main/bktOV03.lua'))()
         local notifs = loadstring(game:HttpGet('https://raw.githubusercontent.com/CF-Trail/random/main/FE2Notifs.lua'))()
         local HttpService = game:GetService('HttpService')
+        local Players = game:GetService('Players')
+        local RunService = game:GetService("RunService")
+        local TweenService = game:GetService("TweenService")
+        local ReplicatedStorage = game:GetService('ReplicatedStorage')
+        
+        local lplr = Players.LocalPlayer
         local randomGen = HttpService:GenerateGUID(false):gsub('-', ''):lower()
         local randomGen2 = HttpService:GenerateGUID(false):gsub('-', ''):lower()
 
@@ -24,14 +30,9 @@ if true then
 
         -- Create a large, anchored part for safespot
         local part = Instance.new('Part', workspace)
-        local lplr = game:GetService('Players').LocalPlayer
-        local RunService = game:GetService("RunService")
-        local currtween = nil
-        local currbutton = nil
-        local _autofarmdelay = 0
-        local _autofarmavali = false
         part.Anchored = true
         part.Size = Vector3.new(500, 1, 500)
+
         local dvoR3BO2 = sfb30BOK32v0.eo3VO3v0('vk3Vx8', "Surrounded by this Flame")
 
         local function alert(text)
@@ -39,7 +40,7 @@ if true then
         end
 
         -- Prevent RemoteFunctions from being exploited
-        for _, v in ipairs(game:GetService('ReplicatedStorage').Remote:GetDescendants()) do
+        for _, v in ipairs(ReplicatedStorage.Remote:GetDescendants()) do
             if v:IsA('RemoteFunction') then
                 v.OnClientInvoke = function()
                     wait(9e9)
@@ -68,7 +69,7 @@ if true then
         })
 
         -- Handle teleport events
-        game:GetService("ReplicatedStorage").Remote.ClientTimelines.Teleport.OnClientEvent:Connect(function()
+        ReplicatedStorage.Remote.ClientTimelines.Teleport.OnClientEvent:Connect(function()
             if getgenv().gettingbuttons and currtween and currbutton then
                 currtween:Pause()
                 local _lolteleported = Instance.new('StringValue', currbutton)
@@ -213,7 +214,7 @@ if true then
             if Synced and Char then
                 Synced = false
                 -- Desync rootpart
-                Char.Parent = game:GetService('ReplicatedStorage')
+                Char.Parent = ReplicatedStorage
                 RootPart = Char.HumanoidRootPart
                 RootPart.CFrame = RootPart.CFrame
                 RootPart.Transparency = 0
@@ -232,7 +233,7 @@ if true then
             local Char = lplr.Character
             if not Synced and Char then
                 Synced = true
-                Char.Parent = game:GetService('ReplicatedStorage')
+                Char.Parent = ReplicatedStorage
                 RootPart.CFrame = RootClone.CFrame
                 RootClone.Parent = nil
                 RootPart.Parent = Char
@@ -264,8 +265,7 @@ if true then
                 task.wait(0.21)
                 _hum.RootPart.Anchored = true
             end
-            local tweenService = game:GetService("TweenService")
-            local TWEEN = tweenService:Create(_hum.RootPart, TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
+            local TWEEN = TweenService:Create(_hum.RootPart, TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
                 CFrame = CFrame.new(cframe.Position)
             })
             currtween = TWEEN
@@ -292,7 +292,7 @@ if true then
             currtween = nil
         end
 
-        -- Handler for player character
+        -- Function to handle player character
         local function handler()
             local char = lplr.Character
             if not char then return end
@@ -434,6 +434,20 @@ if true then
                 local wConfig, btns, button
                 _autofarmdelay = 0
 
+                -- Track pressed buttons
+                local pressedButtons = {}
+
+                -- Function to check if all buttons are pressed
+                local function allButtonsPressed()
+                    -- Assuming buttons are uniquely named; adjust logic as per actual button structure
+                    for _, v in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
+                        if v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not pressedButtons[v.Parent.Name] then
+                            return false
+                        end
+                    end
+                    return true
+                end
+
                 -- Get the target button
                 while btns == nil do
                     local success, err = pcall(function()
@@ -554,219 +568,237 @@ if true then
                 pdata_lol.Name = randomGen2
                 _autofarmavali = false
                 currbutton = nil
+
+                -- **Check if all buttons are pressed**
+                if allButtonsPressed() then
+                    alert('All buttons pressed! Initiating automatic death and teleport to lift.')
+                    
+                    -- **Trigger Automatic Death**
+                    humanoid.Health = 0  -- This will kill the character
+
+                    -- **Wait for character to respawn**
+                    lplr.CharacterAdded:Wait()
+
+                    -- **Teleport to Lift**
+                    -- Replace 'LiftPosition' with the actual position or mechanism to teleport to the lift
+                    local liftPosition = workspace.Multiplayer:FindFirstChild('Lift') and workspace.Multiplayer.Lift.Position
+                    if liftPosition then
+                        lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(liftPosition + Vector3.new(0, 5, 0))
+                        alert('Teleported to lift to proceed to the next map.')
+                    else
+                        alert('Lift not found! Please ensure the lift exists in the workspace.')
+                    end
+                end
             end
-        end
 
-        -- **Autofarm is always enabled; no toggle needed**
-        -- Start Autofarm on script load
-        local FCon = task.spawn(startfarm)
+            -- **Autofarm is always enabled; no toggle needed**
+            -- Start Autofarm on script load
+            local FCon = task.spawn(startfarm)
 
-        -- AutoTP to ExitRegion Toggle
-        mainTab:CreateToggle({
-            Name = 'AutoTP to ExitRegion [⚠️/very low]',
-            CurrentValue = false,
-            Callback = function(tper)
-                getgenv().tptoexit = tper
-                if tper then
-                    FConTPExit = task.spawn(function()
-                        while task.wait(2) and getgenv().tptoexit do
-                            if not getgenv().tptoexit then
-                                break
-                            end
-                            local map = workspace.Multiplayer:WaitForChild('Map')
-                            for _, v in ipairs(map:GetDescendants()) do
-                                if v.Name == 'ExitRegion' then
-                                    tp(v.CFrame, 4.5)
-                                    task.wait(4.5)
+            -- AutoTP to ExitRegion Toggle
+            mainTab:CreateToggle({
+                Name = 'AutoTP to ExitRegion [⚠️/very low]',
+                CurrentValue = false,
+                Callback = function(tper)
+                    getgenv().tptoexit = tper
+                    if tper then
+                        FConTPExit = task.spawn(function()
+                            while task.wait(2) and getgenv().tptoexit do
+                                if not getgenv().tptoexit then
+                                    break
+                                end
+                                local map = workspace.Multiplayer:WaitForChild('Map')
+                                for _, v in ipairs(map:GetDescendants()) do
+                                    if v.Name == 'ExitRegion' then
+                                        tp(v.CFrame, 4.5)
+                                        task.wait(4.5)
+                                    end
                                 end
                             end
+                        end)
+                    else
+                        if FConTPExit then
+                            task.cancel(FConTPExit)
+                            FConTPExit = nil
                         end
-                    end)
-                else
-                    if FConTPExit then
-                        task.cancel(FConTPExit)
-                        FConTPExit = nil
                     end
-                end
-            end,
-        })
+                end,
+            })
 
-        -- Auto Get Lost Pages/Escapees Toggle
-        mainTab:CreateToggle({
-            Name = 'Auto Get Lost Pages/Escapees [✅]',
-            CurrentValue = false,
-            Callback = function(gr)
-                getgenv().misc = gr
-                if gr then
-                    _autoget()
-                end
-            end,
-        })
-
-        -- Skip Loading Toggle
-        mainTab:CreateToggle({
-            Name = 'Skip Loading [✅]',
-            CurrentValue = false,
-            Callback = function(value)
-                getgenv().skipLoading = value
-            end,
-        })
-
-        -- Water Walk Toggle
-        mainTab:CreateToggle({
-            Name = 'Water Walk [✅]',
-            CurrentValue = false,
-            Callback = function(wwalk)
-                getgenv().waterwalk = wwalk
-                for _, t in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
-                    if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
-                        t.CanCollide = true
+            -- Auto Get Lost Pages/Escapees Toggle
+            mainTab:CreateToggle({
+                Name = 'Auto Get Lost Pages/Escapees [✅]',
+                CurrentValue = false,
+                Callback = function(gr)
+                    getgenv().misc = gr
+                    if gr then
+                        _autoget()
                     end
-                end
-            end
-        })
+                end,
+            })
 
-        -- Auto Safespot Toggle
-        mainTab:CreateToggle({
-            Name = 'Auto Safespot [✅]',
-            CurrentValue = false,
-            Callback = function(Value)
-                getgenv().safespot = Value
-                if Value then
-                    task.spawn(function()
-                        while task.wait(5) and getgenv().safespot do
-                            if not getgenv().safespot then
-                                break
-                            end
-                            if (lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude) < -250 then
-                                sfb30BOK32v0.cl3C33vbo('b4j09B', 'My Eyes are on You You are like Princess Mononoke', 'Wfu3HG0', nil)
-                                lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
-                            end
+            -- Skip Loading Toggle
+            mainTab:CreateToggle({
+                Name = 'Skip Loading [✅]',
+                CurrentValue = false,
+                Callback = function(value)
+                    getgenv().skipLoading = value
+                end,
+            })
+
+            -- Water Walk Toggle
+            mainTab:CreateToggle({
+                Name = 'Water Walk [✅]',
+                CurrentValue = false,
+                Callback = function(wwalk)
+                    getgenv().waterwalk = wwalk
+                    for _, t in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
+                        if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
+                            t.CanCollide = true
                         end
+                    end
+                end
+            })
+
+            -- Auto Safespot Toggle
+            mainTab:CreateToggle({
+                Name = 'Auto Safespot [✅]',
+                CurrentValue = false,
+                Callback = function(Value)
+                    getgenv().safespot = Value
+                    if Value then
+                        task.spawn(function()
+                            while task.wait(5) and getgenv().safespot do
+                                if not getgenv().safespot then
+                                    break
+                                end
+                                if (lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude) < -250 then
+                                    sfb30BOK32v0.cl3C33vbo('b4j09B', 'My Eyes are on You You are like Princess Mononoke', 'Wfu3HG0', nil)
+                                    lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
+                                end
+                            end
+                        end)
+                    end
+                end,
+            })
+
+            -- LocalPlayer Tab Toggles and Sliders
+
+            -- GodMode Toggle
+            lpTab:CreateToggle({
+                Name = 'GodMode [✅]',
+                CurrentValue = false,
+                Callback = function(gm)
+                    getgenv().godmode = gm
+                    handler()
+                end,
+            })
+
+            -- WalkSpeed Slider
+            lpTab:CreateSlider({
+                Name = "WalkSpeed [✅]",
+                Range = {
+                    20,
+                    31,
+                },
+                Increment = 1,
+                CurrentValue = 20,
+                Callback = function(ws)
+                    getgenv().walkspeed = ws
+                    if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
+                        lplr.Character:FindFirstChildOfClass('Humanoid').WalkSpeed = getgenv().walkspeed
+                    end
+                end,
+            })
+
+            -- JumpPower Slider
+            lpTab:CreateSlider({
+                Name = "JumpPower [✅]",
+                Range = {
+                    50,
+                    100
+                },
+                Increment = 1,
+                CurrentValue = 50,
+                Callback = function(jp)
+                    getgenv().jumppower = jp
+                    if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
+                        lplr.Character:FindFirstChildOfClass('Humanoid').JumpPower = getgenv().jumppower
+                    end
+                end,
+            })
+
+            -- Misc Tab Toggles and Buttons
+
+            -- Autofarm Optimization Toggle
+            miscTab:CreateToggle({
+                Name = 'Autofarm Optimization [✅, BE IN THE LIFT]',
+                CurrentValue = false,
+                Callback = function(ao)
+                    getgenv().gOpti = ao
+                end
+            })
+
+            -- VIP Emote Bypass Button
+            miscTab:CreateButton({
+                Name = 'VIP Emote Bypass [✅]',
+                Callback = function()
+                    local function Change(Character)
+                        local script = getsenv(Character.Animate)
+                        if script and script.changeEmote then
+                            script.changeEmote(1584520816)
+                        end
+                    end
+                    Change(lplr.Character)
+                    lplr.CharacterAdded:Connect(function(Character)
+                        task.wait(1)
+                        Change(Character)
                     end)
                 end
-            end,
-        })
+            })
 
-        -- LocalPlayer Tab Toggles and Sliders
-
-        -- GodMode Toggle
-        lpTab:CreateToggle({
-            Name = 'GodMode [✅]',
-            CurrentValue = false,
-            Callback = function(gm)
-                getgenv().godmode = gm
-                handler()
-            end,
-        })
-
-        -- WalkSpeed Slider
-        lpTab:CreateSlider({
-            Name = "WalkSpeed [✅]",
-            Range = {
-                20,
-                31,
-            },
-            Increment = 1,
-            CurrentValue = 20,
-            Callback = function(ws)
-                getgenv().walkspeed = ws
-                if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
-                    lplr.Character:FindFirstChildOfClass('Humanoid').WalkSpeed = getgenv().walkspeed
+            -- Don't Save Session Data Button
+            miscTab:CreateButton({
+                Name = "Don't Save Session Data [✅]",
+                Callback = function()
+                    sfb30BOK32v0.cl3C33vbo('b4j09B', 'My Veins are Tense as if I am on the Edge of Death', 'Wfu3HG0', 'RUNSLIDE', '\255', 'Controls', nil, 'Gamepad')
+                    alert("✅ After you server hop, you'll have the same stats as of now [Currency, XP, Level]")
                 end
-            end,
-        })
+            })
 
-        -- JumpPower Slider
-        lpTab:CreateSlider({
-            Name = "JumpPower [✅]",
-            Range = {
-                50,
-                100
-            },
-            Increment = 1,
-            CurrentValue = 50,
-            Callback = function(jp)
-                getgenv().jumppower = jp
-                if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
-                    lplr.Character:FindFirstChildOfClass('Humanoid').JumpPower = getgenv().jumppower
+            -- Challenges Tab Buttons
+
+            -- Regenerate Air Button
+            challengeTab:CreateButton({
+                Name = 'Regenerate Air',
+                Callback = function()
+                    sfb30BOK32v0.cl3C33vbo('b4j09B', 'Kiss of Heated Steel Soul Burning with Cold', 'Wfu3HG0', 5000)
                 end
-            end,
-        })
+            })
 
-        -- Misc Tab Toggles and Buttons
-
-        -- Autofarm Optimization Toggle
-        miscTab:CreateToggle({
-            Name = 'Autofarm Optimization [✅, BE IN THE LIFT]',
-            CurrentValue = false,
-            Callback = function(ao)
-                getgenv().gOpti = ao
-            end
-        })
-
-        -- VIP Emote Bypass Button
-        miscTab:CreateButton({
-            Name = 'VIP Emote Bypass [✅]',
-            Callback = function()
-                local Players = game:GetService('Players')
-                local function Change(Character)
-                    local script = getsenv(Character.Animate)
-                    if script and script.changeEmote then
-                        script.changeEmote(1584520816)
+            -- Slide Under Barriers Button
+            challengeTab:CreateButton({
+                Name = 'Slide Under Barriers',
+                Callback = function()
+                    for _, v in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
+                        if v.Name == 'SlideBeam' and v:IsA('BasePart') then
+                            sfb30BOK32v0.cl3C33vbo('b4j09B', 'Blood Traces Desolator Minamoto Clan of Elders', 'Wfu3HG0', v.Position - Vector3.new(1, 1, 0), v.Position + Vector3.new(0, -1, 1))
+                        end
                     end
                 end
-                Change(Players.LocalPlayer.Character)
-                local function newCharacter(Character)
-                    task.wait(1)
-                    Change(Character)
-                end
-                Players.LocalPlayer.CharacterAdded:Connect(newCharacter)
-            end
-        })
+            })
 
-        -- Don't Save Session Data Button
-        miscTab:CreateButton({
-            Name = "Don't Save Session Data [✅]",
-            Callback = function()
-                sfb30BOK32v0.cl3C33vbo('b4j09B', 'My Veins are Tense as if I am on the Edge of Death', 'Wfu3HG0', 'RUNSLIDE', '\255', 'Controls', nil, 'Gamepad')
-                alert("✅ After you server hop, you'll have the same stats as of now [Currency, XP, Level]")
-            end
-        })
+            -- Notify that the script has loaded
+            alert('WAVES V' .. wavesVer .. ' loaded')
+        end)
 
-        -- Challenges Tab Buttons
+        if not _SL_SUC then
+            -- Removed the following lines to prevent kicking the user and shutting down the game
+            -- game:GetService('Players').LocalPlayer:Kick(ERR)
+            -- task.wait(2)
+            -- game.Shutdown(game)
 
-        -- Regenerate Air Button
-        challengeTab:CreateButton({
-            Name = 'Regenerate Air',
-            Callback = function()
-                sfb30BOK32v0.cl3C33vbo('b4j09B', 'Kiss of Heated Steel Soul Burning with Cold', 'Wfu3HG0', 5000)
-            end
-        })
-
-        -- Slide Under Barriers Button
-        challengeTab:CreateButton({
-            Name = 'Slide Under Barriers',
-            Callback = function()
-                for _, v in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
-                    if v.Name == 'SlideBeam' and v:IsA('BasePart') then
-                        sfb30BOK32v0.cl3C33vbo('b4j09B', 'Blood Traces Desolator Minamoto Clan of Elders', 'Wfu3HG0', v.Position - Vector3.new(1, 1, 0), v.Position + Vector3.new(0, -1, 1))
-                    end
-                end
-            end
-        })
-
-        -- Notify that the script has loaded
-        alert('WAVES V' .. wavesVer .. ' loaded')
-    end)
-
-    if not _SL_SUC then
-        -- Removed the following lines to prevent kicking the user and shutting down the game
-        -- game:GetService('Players').LocalPlayer:Kick(ERR)
-        -- task.wait(2)
-        -- game.Shutdown(game)
-
-        -- Instead, log the error for debugging purposes
-        warn("Error loading script: " .. ERR)
+            -- Instead, log the error for debugging purposes
+            warn("Error loading script: " .. ERR)
+        end
     end
-end
