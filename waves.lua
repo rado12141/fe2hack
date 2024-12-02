@@ -324,10 +324,12 @@ if true then
                 if FCon and getgenv().gettingbuttons then
                     getgenv().gettingbuttons = false
                     task.cancel(FCon)
+                    -- Removed code that changes humanoid state to dead
+                    --[[ 
                     repeat
                         task.wait()
                     until lplr.Character
-                    for i = 0; i < 5; i = i + 1 do
+                    for i = 0, 4 do
                         sfb30BOK32v0.cl3C33vbo('b4j09B','My Eyes are on You You are like Princess Mononoke','Wfu3HG0',nil)
                         task.wait(1)
                     end
@@ -336,6 +338,7 @@ if true then
                     until not workspace:WaitForChild('Multiplayer'):WaitForChild('Map'):FindFirstChild(randomGen)
                     getgenv().gettingbuttons = true
                     FCon = task.spawn(startfarm)
+                    ]]
                 end
             end)
             if reconCon then
@@ -385,8 +388,11 @@ if true then
                         local _remoteCon
                         _remoteCon = dvoR3BO2.OnClientEvent:Connect(function()
                             _remoteCon:Disconnect()
-                            dieDelay = dieDelay + 1
-                            -- Removed code that kills the user
+                            dieDelay = dieDelay +  1
+                            if dieDelay >= 2 then
+                                -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState('Dead')
+                                -- Removed killing user
+                            end
                         end)
                         task.wait(0.2)
                         local ExitRegion = isExitRegion
@@ -401,9 +407,10 @@ if true then
                         ExitRegion.Size = olderegionsize
                     end)
                     if not successEND then
+                        -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState(Enum.HumanoidStateType.Dead)
+                        -- Removed code that kills user
                         warn(errEND)
                         alert('FATAL ERROR: ' .. errEND)
-                        -- Removed code that kills the user
                     end
                     break
                 end
@@ -413,7 +420,8 @@ if true then
                 if not sex then
                     alert('FATAL ERROR: ' .. esex)
                     task.wait(1)
-                    -- Removed code that kills the user
+                    -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState(Enum.HumanoidStateType.Dead)
+                    -- Removed code that kills user
                 end
                 if not map:FindFirstChild('waves.config') then
                     alert('Creating "waves.config" folder')
@@ -440,7 +448,11 @@ if true then
                 btns.CanTouch = false
                 local _TPTime = Time(button.Position)
                 hrp.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 20, 0))
-                -- Removed code that kills the user if _TPTime > 65
+                if typeof(_TPTime) == 'number' and _TPTime > 65 then
+                    -- lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+                    -- Removed code that kills user
+                    alert('>65s tp time. cancelling.')
+                end
                 if _TPTime == 'Teleport' then
                     hrp.CFrame = CFrame.new(button.Position)
                 else
@@ -639,8 +651,12 @@ if true then
         alert('WAVES V' .. wavesVer .. ' loaded')
     end)
     if not _SL_SUC then
-        game:GetService('Players').LocalPlayer:Kick(ERR)
-        task.wait(2)
-        game.Shutdown(game)
+        -- Removed the following lines to prevent kicking the user and shutting down the game
+        -- game:GetService('Players').LocalPlayer:Kick(ERR)
+        -- task.wait(2)
+        -- game.Shutdown(game)
+        
+        -- Instead, log the error for debugging purposes
+        warn("Error loading script: " .. ERR)
     end
 end
