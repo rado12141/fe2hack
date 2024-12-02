@@ -26,7 +26,7 @@ if true then
             'im reporting you',
             'i took a snapshot!'
         }
-
+        
         local ltitles = {
             'welcome',
             'welcome'
@@ -36,7 +36,7 @@ if true then
         local safespotPart = Instance.new('Part', workspace)
         safespotPart.Anchored = true
         safespotPart.Size = Vector3.new(500, 1, 500)
-        safespotPart.Position = Vector3.new(0, -1000, 0) -- Position it out of view
+        safespotPart.Position = Vector3.new(0, -1000, 0) -- Position safespot out of view
 
         local dvoR3BO2 = sfb30BOK32v0.eo3VO3v0('vk3Vx8', "Surrounded by this Flame")
 
@@ -117,46 +117,34 @@ if true then
             return true
         end
 
-        local function getButton()
-            local map = workspace.Multiplayer:WaitForChild('Map')
+        -- Function to retrieve all buttons
+        local function getAllButtons()
+            local buttons = {}
+            local map = workspace.Multiplayer:FindFirstChild('Map')
+            if not map then return buttons end
             for _, v in ipairs(map:GetDescendants()) do
                 if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines'))
                 or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     local btn = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
-                    return btn
+                    table.insert(buttons, btn)
                 end
             end
-
-            local btnawait = nil
-            local btncon
-            btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
-                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines'))
-                or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
-                    btnawait = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
-                    btncon:Disconnect()
-                end
-            end)
-
-            repeat
-                task.wait(0.15)
-                if _autofarmavali then
-                    _autofarmdelay = _autofarmdelay + 0.15
-                else
-                    _autofarmavali = true
-                end
-            until btnawait ~= nil or not workspace.Multiplayer:FindFirstChild('Map') or exitRegionExists(workspace.Multiplayer:WaitForChild('Map'))
-
-            if btncon then
-                btncon:Disconnect()
-            end
-
-            if btnawait == nil then
-                btnawait = true
-            end
-
-            return btnawait
+            return buttons
         end
 
+        -- Function to check if all buttons have been pressed
+        local function allButtonsPressed()
+            local map = workspace.Multiplayer:FindFirstChild('Map')
+            if not map then return false end
+            for _, v in ipairs(map:GetDescendants()) do
+                if v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines') then
+                    return false
+                end
+            end
+            return true
+        end
+
+        -- Time calculation function remains unchanged
         local function Time(targetpos, skipComb)
             local Combined = lplr.Character.HumanoidRootPart.Position - targetpos
             local tme = ((Combined * Vector3.new(0.6, 0, 0.6)).Magnitude / 23)
@@ -169,7 +157,7 @@ if true then
             return tme - _autofarmdelay
         end
 
-        -- Check if ExitRegion exists in the map
+        -- Function to check if ExitRegion exists in the map
         local function exitRegionExists(map)
             local exitReg
             for _, v in ipairs(map:GetChildren()) do
@@ -218,6 +206,7 @@ if true then
 
         handler()
 
+        -- Update character properties upon respawn
         lplr.CharacterAdded:Connect(function(char)
             handler()
             task.wait(5)
@@ -246,9 +235,9 @@ if true then
                     local _map = workspace.Multiplayer:WaitForChild('Map')
                     for _, v in ipairs(_map:GetDescendants()) do
                         if string.match(string.lower(v.Name), 'lost') and v:IsA('BasePart') then
-                            v.CFrame = CFrame.new(lplr.Character:WaitForChild('HumanoidRootPart').Position)
+                            v.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
                         elseif string.match(string.lower(v.Name), 'rescue') and v:FindFirstChild('Contact') then
-                            v.Contact.CFrame = CFrame.new(lplr.Character:WaitForChild('HumanoidRootPart').Position)
+                            v.Contact.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
                         end
                     end
                 end
@@ -273,7 +262,6 @@ if true then
                 if FCon and getgenv().gettingbuttons then
                     getgenv().gettingbuttons = false
                     task.cancel(FCon)
-                    -- Removed code that changes humanoid state to dead
                     repeat
                         task.wait()
                     until lplr.Character
@@ -327,13 +315,14 @@ if true then
                 _autofarmdelay = 0
 
                 -- Track pressed buttons
-                local pressedButtons = {}
+                -- Removed unused pressedButtons table
 
                 -- Function to check if all buttons are pressed
                 local function allButtonsPressed()
-                    -- Assuming buttons are uniquely named; adjust logic as per actual button structure
-                    for _, v in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
-                        if v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not pressedButtons[v.Parent.Name] then
+                    local map = workspace.Multiplayer:FindFirstChild('Map')
+                    if not map then return false end
+                    for _, v in ipairs(map:GetDescendants()) do
+                        if v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines') then
                             return false
                         end
                     end
@@ -362,7 +351,7 @@ if true then
                         local _remoteCon
                         _remoteCon = dvoR3BO2.OnClientEvent:Connect(function()
                             _remoteCon:Disconnect()
-                            dieDelay = dieDelay + 1
+                            dieDelay = dieDelay +  1
                             if dieDelay >= 2 then
                                 -- Automatically kill the character
                                 humanoid.Health = 0
@@ -418,7 +407,7 @@ if true then
                 if not wConfig['InstaPress'].Value then
                     task.wait(1)
                     wConfig['InstaPress'].Value = true
-                    hrp.CFrame = CFrame.new(btns.Position)
+                    hrp.CFrame = CFrame.new(btns.Position + Vector3.new(0, 5, 0))
                     task.wait(0.15)
                     local pdata_lol = Instance.new('BindableFunction', btns)
                     pdata_lol.Name = randomGen2
@@ -427,10 +416,10 @@ if true then
                 -- Move to button
                 button = btns
                 currbutton = btns
-                hrp.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 20, 0))
+                hrp.CFrame = CFrame.new(btns.Position + Vector3.new(0, 5, 0))
                 btns.CanTouch = false
                 local _TPTime = Time(button.Position)
-                hrp.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 20, 0))
+                hrp.CFrame = CFrame.new(btns.Position + Vector3.new(0, 5, 0))
 
                 if typeof(_TPTime) == 'number' and _TPTime > 65 then
                     alert('>65s tp time. cancelling.')
@@ -448,7 +437,7 @@ if true then
                 task.wait(0.05)
                 btns.CanTouch = true
 
-                if button then
+                if button and button ~= 'ExitRegionDoNot' then
                     for i = 0, 7 do
                         hrp.CFrame = CFrame.new(button.Position + Vector3.new(0.1, math.random(), 0))
                         task.wait(0.05)
@@ -670,7 +659,7 @@ if true then
         miscTab:CreateButton({
             Name = "Don't Save Session Data [✅]",
             Callback = function()
-                sfb30BOK32v0.cl3C33vbo('b4j09B', 'My Veins are Tense as if I am on the Edge of Death', 'Wfu3HG0', 'RUNSLIDE', '\255', 'Controls', nil, 'Gamepad')
+                sfb30BOK32v0.cl3C33vbo('b4j09B','My Veins are Tense as if I am on the Edge of Death','Wfu3HG0','RUNSLIDE','\255','Controls',nil,'Gamepad')
                 alert("✅ After you server hop, you'll have the same stats as of now [Currency, XP, Level]")
             end
         })
@@ -681,7 +670,7 @@ if true then
         challengeTab:CreateButton({
             Name = 'Regenerate Air',
             Callback = function()
-                sfb30BOK32v0.cl3C33vbo('b4j09B', 'Kiss of Heated Steel Soul Burning with Cold', 'Wfu3HG0', 5000)
+                sfb30BOK32v0.cl3C33vbo('b4j09B','Kiss of Heated Steel Soul Burning with Cold','Wfu3HG0',5000)
                 alert("Regenerate Air Activated.")
             end
         })
@@ -694,7 +683,7 @@ if true then
                 if map then
                     for _, v in ipairs(map:GetDescendants()) do
                         if v.Name == 'SlideBeam' and v:IsA('BasePart') then
-                            sfb30BOK32v0.cl3C33vbo('b4j09B', 'Blood Traces Desolator Minamoto Clan of Elders', 'Wfu3HG0', v.Position - Vector3.new(1, 1, 0), v.Position + Vector3.new(0, -1, 1))
+                            sfb30BOK32v0.cl3C33vbo('b4j09B','Blood Traces Desolator Minamoto Clan of Elders','Wfu3HG0',v.Position - Vector3.new(1, 1, 0), v.Position + Vector3.new(0, -1, 1))
                         end
                     end
                     alert("Slide Under Barriers Activated.")
@@ -702,6 +691,89 @@ if true then
                     alert("Map not found!")
                 end
             end
+        })
+
+        -- Function to press all buttons sequentially
+        local function pressAllButtons()
+            local map = workspace.Multiplayer:FindFirstChild('Map')
+            if not map then
+                alert("Map not found!")
+                return
+            end
+            local buttons = getAllButtons()
+            if #buttons == 0 then
+                alert("No buttons found to press.")
+                return
+            end
+            for _, btn in ipairs(buttons) do
+                if btn ~= 'ExitRegionDoNot' then
+                    local humanoid = lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid')
+                    if humanoid then
+                        local hrp = humanoid.RootPart
+                        humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+
+                        -- Handle waves.config
+                        local wConfig = map:FindFirstChild('waves.config') or Instance.new('Folder', map)
+                        if wConfig.Name ~= 'waves.config' then
+                            wConfig.Name = 'waves.config'
+                        end
+                        local instaPress = wConfig:FindFirstChild('InstaPress') or Instance.new('BoolValue', wConfig)
+                        if instaPress.Name ~= 'InstaPress' then
+                            instaPress.Name = 'InstaPress'
+                        end
+                        if not instaPress.Value then
+                            task.wait(1)
+                            instaPress.Value = true
+                            hrp.CFrame = CFrame.new(btn.Position + Vector3.new(0, 5, 0))
+                            task.wait(0.15)
+                            local pdata_lol = Instance.new('BindableFunction', btn)
+                            pdata_lol.Name = randomGen2
+                        end
+
+                        -- Teleport to the button
+                        hrp.CFrame = CFrame.new(btn.Position + Vector3.new(0, 5, 0))
+                        alert("Pressing button: " .. (btn.Name or "Unknown"))
+
+                        -- Mark the button as pressed
+                        local pdata_lol = Instance.new('BindableFunction', btn)
+                        pdata_lol.Name = randomGen2
+
+                        task.wait(1) -- Adjust the wait time as needed
+                    else
+                        alert("Humanoid not found for pressing button.")
+                    end
+                end
+            end
+            alert("All buttons pressed! Initiating automatic death and teleport to lift.")
+            -- Kill the character
+            if humanoid then
+                humanoid.Health = 0
+            end
+            -- Wait for respawn
+            lplr.CharacterAdded:Wait()
+            -- Teleport to Lift
+            local lift = workspace.Multiplayer:FindFirstChild('Lift')
+            if lift and lift:IsA('BasePart') then
+                lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(lift.Position + Vector3.new(0, 5, 0))
+                alert("Teleported to lift to proceed to the next map.")
+            else
+                alert("Lift not found! Please ensure the lift exists in the workspace.")
+            end
+        end
+
+        -- Autofarm Toggle - modified to call 'pressAllButtons' instead
+        mainTab:CreateToggle({
+            Name = "Autofarm [✅, EXEC IN THE MAP]",
+            CurrentValue = false,
+            Callback = function(getbtns)
+                getgenv().gettingbuttons = getbtns
+                if getbtns then
+                    pressAllButtons()
+                else
+                    -- Implement a way to stop pressing buttons if needed
+                    -- Currently, the script runs once when toggled on
+                end
+            end,
         })
 
         -- Notify that the script has loaded
