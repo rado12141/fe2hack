@@ -5,8 +5,9 @@ if true then
         local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
         local sfb30BOK32v0 = loadstring(game:HttpGet('https://raw.githubusercontent.com/CF-Trail/random/refs/heads/main/bktOV03.lua'))()
         local notifs = loadstring(game:HttpGet('https://raw.githubusercontent.com/CF-Trail/random/main/FE2Notifs.lua'))()
-        local randomGen = game:GetService('HttpService'):GenerateGUID(false):gsub('-',''):lower()
-        local randomGen2 = game:GetService('HttpService'):GenerateGUID(false):gsub('-',''):lower()
+        local HttpService = game:GetService('HttpService')
+        local randomGen = HttpService:GenerateGUID(false):gsub('-', ''):lower()
+        local randomGen2 = HttpService:GenerateGUID(false):gsub('-', ''):lower()
 
         local subs = {
             'button instatp!!!!',
@@ -15,12 +16,13 @@ if true then
             'im reporting you',
             'i took a snapshot!'
         }
-        
+
         local ltitles = {
             'welcome',
             'welcome'
         }
 
+        -- Create a large, anchored part for safespot
         local part = Instance.new('Part', workspace)
         local lplr = game:GetService('Players').LocalPlayer
         local RunService = game:GetService("RunService")
@@ -30,15 +32,14 @@ if true then
         local _autofarmavali = false
         part.Anchored = true
         part.Size = Vector3.new(500, 1, 500)
-        local dvoR3BO2 = sfb30BOK32v0.eo3VO3v0('vk3Vx8',"Surrounded by this Flame")
+        local dvoR3BO2 = sfb30BOK32v0.eo3VO3v0('vk3Vx8', "Surrounded by this Flame")
 
-        local clmain
         local function alert(text)
             notifs.alert(text, Color3.new(0.8, 0.498039, 2))
         end
 
         -- Prevent RemoteFunctions from being exploited
-        for i, v in next, game:GetService('ReplicatedStorage').Remote:GetDescendants() do
+        for _, v in ipairs(game:GetService('ReplicatedStorage').Remote:GetDescendants()) do
             if v:IsA('RemoteFunction') then
                 v.OnClientInvoke = function()
                     wait(9e9)
@@ -47,23 +48,26 @@ if true then
             end
         end
 
+        -- Hook metamethods to modify certain behaviors
         local olds
         olds = hookmetamethod(game, '__namecall', function(self, ...)
             local method = getnamecallmethod()
             local args = { ... }
             if tostring(self) == 'Survived' and method == 'InvokeServer' then
-                args[3] = math.random(1,95) + math.random()
+                args[3] = math.random(1, 95) + math.random()
                 return olds(self, unpack(args))
             end
             return olds(self, ...)
         end)
 
+        -- Create the main window using Rayfield
         local lib = Rayfield:CreateWindow({
             Name = "WAVES V" .. wavesVer .. " [FE2: V62.82]",
             LoadingTitle = ltitles[math.random(1, #ltitles)],
             LoadingSubtitle = subs[math.random(1, #subs)],
         })
 
+        -- Handle teleport events
         game:GetService("ReplicatedStorage").Remote.ClientTimelines.Teleport.OnClientEvent:Connect(function()
             if getgenv().gettingbuttons and currtween and currbutton then
                 currtween:Pause()
@@ -73,16 +77,17 @@ if true then
         end)
 
         -- Initialize global variables
-        getgenv().godmode = nil
-        getgenv().waterwalk = nil
-        getgenv().muteemotes = nil
-        getgenv().skipLoading = nil
+        getgenv().godmode = false
+        getgenv().waterwalk = false
+        getgenv().muteemotes = false
+        getgenv().skipLoading = false
         getgenv().changedEmote = 0
         getgenv().walkspeed = 20
         getgenv().jumppower = 50
         getgenv().gettingbuttons = true  -- Autofarm is always enabled
         getgenv().safespot = false       -- Initialize as false; can be controlled if needed
 
+        -- Create UI tabs
         local infoTab = lib:CreateTab("Info")
         local mainTab = lib:CreateTab("Map")
         local lpTab = lib:CreateTab("LocalPlayer")
@@ -96,7 +101,7 @@ if true then
         infoTab:CreateLabel('[~] Fixed the script after the security update')
 
         -- Utility Functions
-        function isRandomString(str)
+        local function isRandomString(str)
             for i = 1, #str do
                 local ltr = str:sub(i, i)
                 if ltr:lower() == ltr then
@@ -106,23 +111,24 @@ if true then
             return true
         end
 
-        function getButton()
-            for i, v in next, workspace.Multiplayer:WaitForChild('Map'):GetDescendants() do
+        local function getButton()
+            for _, v in ipairs(workspace.Multiplayer:WaitForChild('Map'):GetDescendants()) do
                 if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) 
                 or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     local btnthinglol = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
                     return btnthinglol
                 end
             end
-            local btncon = nil
+
             local btnawait = nil
-            btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
+            local btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
                 if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) 
                 or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     btnawait = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
                     btncon:Disconnect()
                 end
             end)
+
             repeat
                 task.wait(0.15)
                 if _autofarmavali then
@@ -131,16 +137,19 @@ if true then
                     _autofarmavali = true
                 end
             until btnawait ~= nil or not workspace.Multiplayer:FindFirstChild('Map') or exitRegionExists(workspace.Multiplayer:WaitForChild('Map'))
+
             if btncon then
                 btncon:Disconnect()
             end
+
             if btnawait == nil then
                 btnawait = true
             end
+
             return btnawait
         end
 
-        function Time(targetpos, skipComb)
+        local function Time(targetpos, skipComb)
             local Combined = lplr.Character.HumanoidRootPart.Position - targetpos
             local tme = ((Combined * Vector3.new(0.6, 0, 0.6)).Magnitude / 23)
             if skipComb then
@@ -152,21 +161,26 @@ if true then
             return tme - _autofarmdelay
         end
 
+        -- Handle new maps being added
         workspace.Multiplayer.ChildAdded:Connect(function(v)
             if v.Name == 'Map' then
                 if getgenv().skipLoading then
                     task.wait(1)
-                    sfb30BOK32v0.cl3C33vbo('b4j09B','Shinigami Gods Follow Me I am Empty Like Hollow','Wfu3HG0',nil)
+                    sfb30BOK32v0.cl3C33vbo('b4j09B', 'Shinigami Gods Follow Me I am Empty Like Hollow', 'Wfu3HG0', nil)
                 end
                 -- **Start Autofarm Automatically for New Maps**
                 if getgenv().gettingbuttons then
                     -- Delay to ensure the new map is fully loaded
                     task.wait(2)
+                    if FCon and task.is_running(FCon) then
+                        task.cancel(FCon)
+                    end
                     FCon = task.spawn(startfarm)
                 end
             end
         end)
 
+        -- Handle descendant additions for water walk and optimization
         workspace.Multiplayer.DescendantAdded:Connect(function(t)
             task.wait()
             if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
@@ -188,7 +202,7 @@ if true then
 
         local function desync()
             local Char = lplr.Character
-            if Synced == true and Char then
+            if Synced and Char then
                 Synced = false
                 -- Desync rootpart
                 Char.Parent = game:GetService('ReplicatedStorage')
@@ -208,7 +222,7 @@ if true then
 
         local function sync()
             local Char = lplr.Character
-            if Synced == false and Char then
+            if not Synced and Char then
                 Synced = true
                 Char.Parent = game:GetService('ReplicatedStorage')
                 RootPart.CFrame = RootClone.CFrame
@@ -220,34 +234,31 @@ if true then
             end
         end
 
-        function fetchZipline()
+        local function fetchZipline()
             if workspace.Multiplayer:FindFirstChild('Map') then
                 local isZipline, ziplinePart
-                for i, v in next, workspace.Multiplayer.Map:GetDescendants() do
+                for _, v in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
                     if v.Name == 'StartPole' and v:IsA('Model') and v:FindFirstChild('Base') then
                         isZipline = true
                         ziplinePart = v.Base
+                        break
                     end
                 end
-                if ziplinePart then
-                    return ziplinePart
-                else
-                    return false
-                end
+                return ziplinePart or false
             else
                 return false
             end
         end
 
-        function tp(cframe, speed, exr)
-            local plr = game:GetService("Players").LocalPlayer.Character
+        local function tp(cframe, speed, exr)
+            local plr = lplr.Character
             local _hum = plr:FindFirstChildOfClass('Humanoid')
-            if not exr then
+            if not exr and _hum and _hum:FindFirstChild('RootPart') then
                 task.wait(0.21)
                 _hum.RootPart.Anchored = true
             end
-            local tween = game:GetService("TweenService")
-            local TWEEN = tween:Create(_hum.RootPart, TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
+            local tweenService = game:GetService("TweenService")
+            local TWEEN = tweenService:Create(_hum.RootPart, TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
                 CFrame = CFrame.new(cframe.Position)
             })
             currtween = TWEEN
@@ -255,26 +266,34 @@ if true then
             local finished = false
             local connect
             connect = TWEEN.Completed:Connect(function()
-                _hum.RootPart.Anchored = false
+                if _hum and _hum:FindFirstChild('RootPart') then
+                    _hum.RootPart.Anchored = false
+                end
                 connect:Disconnect()
                 finished = true
             end)
             repeat
-                _hum.RootPart.Velocity = Vector3.zero
-                _hum.RootPart.RotVelocity = Vector3.zero
+                if _hum and _hum:FindFirstChild('RootPart') then
+                    _hum.RootPart.Velocity = Vector3.zero
+                    _hum.RootPart.RotVelocity = Vector3.zero
+                end
                 RunService.Heartbeat:Wait()
             until finished == true or (currbutton and currbutton:FindFirstChild('_DoNotTeleportTimelines') or false)
-            _hum.RootPart.Anchored = false
+            if _hum and _hum:FindFirstChild('RootPart') then
+                _hum.RootPart.Anchored = false
+            end
             currtween = nil
         end
 
-        function handler()
+        local function handler()
             local char = lplr.Character
+            if not char then return end
             char:WaitForChild('Humanoid')
-            char.Humanoid:GetPropertyChangedSignal('Health'):Connect(function()
+            local humanoid = char.Humanoid
+            humanoid:GetPropertyChangedSignal('Health'):Connect(function()
                 if getgenv().godmode then
-                    char.Humanoid.MaxHealth = 99999
-                    char.Humanoid.Health = 99999
+                    humanoid.MaxHealth = 99999
+                    humanoid.Health = 99999
                 end
             end)
             if getgenv().changedEmote ~= 0 and getsenv then
@@ -285,27 +304,30 @@ if true then
             end
         end
 
-        function exitRegionExists(map)
+        local function exitRegionExists(map)
             local exitReg
-            for i, v in next, map:GetChildren() do
-                if v.Name == 'ExitRegion' and v:IsA('BasePart') then
-                    exitReg = v
-                    break
-                end		
-            end
-            for i, v in next, map:GetDescendants() do
+            for _, v in ipairs(map:GetChildren()) do
                 if v.Name == 'ExitRegion' and v:IsA('BasePart') then
                     exitReg = v
                     break
                 end
             end
-            if exitReg and exitReg:IsA('Model') then
-                return exitReg.PrimaryPart
-            elseif exitReg and exitReg:IsA('BasePart') then
-                return exitReg
-            else
-                return false
+            if not exitReg then
+                for _, v in ipairs(map:GetDescendants()) do
+                    if v.Name == 'ExitRegion' and v:IsA('BasePart') then
+                        exitReg = v
+                        break
+                    end
+                end
             end
+            if exitReg then
+                if exitReg:IsA('Model') then
+                    return exitReg.PrimaryPart
+                elseif exitReg:IsA('BasePart') then
+                    return exitReg
+                end
+            end
+            return false
         end
 
         handler()
@@ -328,7 +350,7 @@ if true then
             end)
         end)
 
-        function float()
+        local function float()
             task.spawn(function()
                 if getgenv().gettingbuttons then
                     local fpart = Instance.new('Part', workspace)
@@ -394,7 +416,7 @@ if true then
             FCon = task.spawn(startfarm)
         end
 
-        function startfarm()
+        local function startfarm()
             while game:GetService('RunService').Heartbeat:Wait() do
                 if not getgenv().gettingbuttons then
                     break
@@ -404,23 +426,31 @@ if true then
                     alert('Disconnected reconCon')
                 end
                 local map = workspace.Multiplayer:WaitForChild('Map')
-                local hrp = lplr.Character:FindFirstChildOfClass('Humanoid').RootPart
+                local humanoid = lplr.Character:FindFirstChildOfClass('Humanoid')
+                if not humanoid then
+                    alert('Humanoid not found!')
+                    task.wait(1)
+                    continue
+                end
+                local hrp = humanoid.RootPart
                 hrp.Parent.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
                 local wConfig, btns, button
                 _autofarmdelay = 0
+
                 while btns == nil do
-                    local s1, e1 = pcall(function()
+                    local success, err = pcall(function()
                         btns = getButton()
                     end)
-                    if not s1 then
-                        warn(e1)
-                        alert(e1)
+                    if not success then
+                        warn(err)
+                        alert(err)
                     end
                     if btns == 'ExitRegionDoNot' then
                         btns = true
                     end
                     game:GetService('RunService').Heartbeat:Wait()
                 end
+
                 local isExitRegion = exitRegionExists(map)
                 if isExitRegion then
                     local successEND, errEND = pcall(function()
@@ -451,17 +481,19 @@ if true then
                         warn(errEND)
                         alert('FATAL ERROR: ' .. errEND)
                     end
-                    break
+                    break  -- Exit the farming loop as the map has ended
                 end
-                local sex, esex = pcall(function()
-                    alert('Zooming to the button ' .. btns.Name)
+
+                local successZoom, errZoom = pcall(function()
+                    alert('Zooming to the button ' .. (btns.Name or "Unknown"))
                 end)
-                if not sex then
-                    alert('FATAL ERROR: ' .. esex)
+                if not successZoom then
+                    alert('FATAL ERROR: ' .. errZoom)
                     task.wait(1)
                     -- Removed killing user
                     -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState(Enum.HumanoidStateType.Dead)
                 end
+
                 if not map:FindFirstChild('waves.config') then
                     alert('Creating "waves.config" folder')
                     wConfig = Instance.new('Folder', map)
@@ -469,11 +501,13 @@ if true then
                 else
                     wConfig = map:FindFirstChild('waves.config')
                 end
+
                 if not wConfig:FindFirstChild('InstaPress') then
                     local InstaPressData = Instance.new('BoolValue', wConfig)
                     InstaPressData.Name = 'InstaPress'
                 end
-                if wConfig['InstaPress'].Value == false then
+
+                if not wConfig['InstaPress'].Value then
                     task.wait(1)
                     wConfig['InstaPress'].Value = true
                     hrp.CFrame = CFrame.new(btns.Position)
@@ -481,31 +515,37 @@ if true then
                     local pdata_lol = Instance.new('BindableFunction', btns)
                     pdata_lol.Name = randomGen2
                 end
+
                 button = btns
                 currbutton = btns
                 hrp.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 20, 0))
                 btns.CanTouch = false
                 local _TPTime = Time(button.Position)
                 hrp.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 20, 0))
+
                 if typeof(_TPTime) == 'number' and _TPTime > 65 then
                     -- Removed killing user
                     -- lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
                     alert('>65s tp time. cancelling.')
                 end
+
                 if _TPTime == 'Teleport' then
                     hrp.CFrame = CFrame.new(button.Position)
                 else
                     tp(button.CFrame, _TPTime)
                 end
+
                 hrp.CFrame = CFrame.new(button.Position + Vector3.new(0, 5, 0))
                 task.wait(0.05)
                 btns.CanTouch = true
+
                 if button then
                     for i = 0, 7 do
                         hrp.CFrame = CFrame.new(button.Position + Vector3.new(0.1, math.random(), 0))
                         task.wait(0.05)
                     end
                 end
+
                 hrp.CFrame = CFrame.new(button.Position)
                 local pdata_lol = Instance.new('BindableFunction', btns)
                 pdata_lol.Name = randomGen2
@@ -515,193 +555,8 @@ if true then
         end
 
         -- **Autofarm is always enabled; no toggle needed**
-        task.spawn(startfarm)
-
-        function _autoget()
-            task.spawn(function()
-                while task.wait(3) and getgenv().misc do
-                    if not getgenv().misc then
-                        break
-                    end
-                    local _map
-                    _map = workspace.Multiplayer:WaitForChild('Map')
-                    for i, v in next, _map:GetDescendants() do
-                        if string.match(string.lower(v.Name), 'lost') and v:IsA('BasePart') then
-                            v.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
-                        elseif (string.match(string.lower(v.Name), 'rescue')) and v:FindFirstChild('Contact') then
-                            v.Contact.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
-                        end
-                    end
-                end
-            end)
-        end
-
-        -- **Removed Autofarm Toggle from UI**
-
-        -- Removed the Autofarm toggle from the UI to make it always active
-        -- mainTab:CreateToggle({
-        --     Name = "Autofarm [✅, EXEC IN THE MAP]",
-        --     CurrentValue = false,
-        --     Callback = function(getbtns)
-        --         getgenv().gettingbuttons = getbtns
-        --         if getbtns then
-        --             FCon = task.spawn(startfarm)
-        --         else
-        --             if FCon then
-        --                 task.cancel(FCon)
-        --                 FCon = nil
-        --             end
-        --         end
-        --     end,
-        -- })
-
-        -- **Start Autofarm Automatically for Existing and New Maps**
-        -- Since Autofarm is always enabled, ensure startfarm runs on script load
-        -- and on any new map loaded
-
-        -- **Note:** Ensure that 'startfarm' is defined before calling it
-
-        -- Modify the mainTab to remove the Autofarm toggle and possibly remove related UI elements
-        -- Alternatively, keep the other UI elements as needed
-
-        -- Continue with other UI elements and functionalities
-
-        -- **Additional UI Elements:**
-
-        -- AutoTP to ExitRegion Toggle
-        mainTab:CreateToggle({
-            Name = 'AutoTP to ExitRegion [⚠️/very low]',
-            CurrentValue = false,
-            Callback = function(tper)
-                getgenv().tptoexit = tper
-                if tper then
-                    FConTPExit = task.spawn(function()
-                        while task.wait(2) and getgenv().tptoexit do
-                            if not getgenv().tptoexit then
-                                break
-                            end
-                            local map = workspace.Multiplayer:WaitForChild('Map')
-                            for i, v in next, map:GetDescendants() do
-                                if v.Name == 'ExitRegion' then
-                                    tp(v.CFrame, 4.5)
-                                    task.wait(4.5)
-                                end
-                            end
-                        end
-                    end)
-                else
-                    if FConTPExit then
-                        task.cancel(FConTPExit)
-                        FConTPExit = nil
-                    end
-                end
-            end,
-        })
-
-        -- Auto Get Lost Pages/Escapees Toggle
-        mainTab:CreateToggle({
-            Name = 'Auto Get Lost Pages/Escapees [✅]',
-            CurrentValue = false,
-            Callback = function(gr)
-                getgenv().misc = gr
-                if gr then
-                    _autoget()
-                end
-            end,
-        })
-
-        -- Skip Loading Toggle
-        mainTab:CreateToggle({
-            Name = 'Skip Loading [✅]',
-            CurrentValue = false,
-            Callback = function(value)
-                getgenv().skipLoading = value
-            end,
-        })
-
-        -- Water Walk Toggle
-        mainTab:CreateToggle({
-            Name = 'Water Walk [✅]',
-            CurrentValue = false,
-            Callback = function(wwalk)
-                getgenv().waterwalk = wwalk
-                for i, t in next, workspace.Multiplayer.Map:GetDescendants() do
-                    if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
-                        t.CanCollide = getgenv().waterwalk
-                    end
-                end
-            end
-        })
-
-        -- Auto Safespot Toggle
-        mainTab:CreateToggle({
-            Name = 'Auto Safespot [✅]',
-            CurrentValue = false,
-            Callback = function(Value)
-                getgenv().safespot = Value
-                if Value then
-                    task.spawn(function()
-                        while task.wait(5) and getgenv().safespot do
-                            if not getgenv().safespot then
-                                break
-                            end
-                            if (lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude) < -250 then
-                                sfb30BOK32v0.cl3C33vbo('b4j09B','My Eyes are on You You are like Princess Mononoke','Wfu3HG0',nil)
-                                lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
-                            end
-                        end
-                    end)
-                end
-            end,
-        })
-
-        -- LocalPlayer Tab Toggles and Sliders
-
-        -- GodMode Toggle
-        lpTab:CreateToggle({
-            Name = 'GodMode [✅]',
-            CurrentValue = false,
-            Callback = function(gm)
-                getgenv().godmode = gm
-                handler()
-            end,
-        })
-
-        -- WalkSpeed Slider
-        lpTab:CreateSlider({
-            Name = "WalkSpeed [✅]",
-            Range = {
-                20,
-                31,
-            },
-            Increment = 1,
-            CurrentValue = 20,
-            Callback = function(ws)
-                getgenv().walkspeed = ws
-                if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
-                    lplr.Character:FindFirstChildOfClass('Humanoid').WalkSpeed = getgenv().walkspeed
-                end
-            end,
-        })
-
-        -- JumpPower Slider
-        lpTab:CreateSlider({
-            Name = "JumpPower [✅]",
-            Range = {
-                50,
-                100
-            },
-            Increment = 1,
-            CurrentValue = 50,
-            Callback = function(jp)
-                getgenv().jumppower = jp
-                if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
-                    lplr.Character:FindFirstChildOfClass('Humanoid').JumpPower = getgenv().jumppower
-                end
-            end,
-        })
-
-        -- Misc Tab Toggles and Buttons
+        -- Start Autofarm on script load
+        local FCon = task.spawn(startfarm)
 
         -- Autofarm Optimization Toggle
         miscTab:CreateToggle({
@@ -736,8 +591,8 @@ if true then
         miscTab:CreateButton({
             Name = "Don't Save Session Data [✅]",
             Callback = function()
-                sfb30BOK32v0.cl3C33vbo('b4j09B','My Veins are Tense as if I am on the Edge of Death','Wfu3HG0','RUNSLIDE','\255','Controls',nil,'Gamepad')
-                alert("✅ After you will server hop, you'll have the same stats as of now [Currency, XP, Level]")
+                sfb30BOK32v0.cl3C33vbo('b4j09B', 'My Veins are Tense as if I am on the Edge of Death', 'Wfu3HG0', 'RUNSLIDE', '\255', 'Controls', nil, 'Gamepad')
+                alert("✅ After you server hop, you'll have the same stats as of now [Currency, XP, Level]")
             end
         })
 
@@ -747,7 +602,7 @@ if true then
         challengeTab:CreateButton({
             Name = 'Regenerate Air',
             Callback = function()
-                sfb30BOK32v0.cl3C33vbo('b4j09B','Kiss of Heated Steel Soul Burning with Cold','Wfu3HG0',5000)
+                sfb30BOK32v0.cl3C33vbo('b4j09B', 'Kiss of Heated Steel Soul Burning with Cold', 'Wfu3HG0', 5000)
             end
         })
 
@@ -755,16 +610,18 @@ if true then
         challengeTab:CreateButton({
             Name = 'Slide Under Barriers',
             Callback = function()
-                for i, v in next, workspace.Multiplayer.Map:GetDescendants() do
+                for _, v in ipairs(workspace.Multiplayer.Map:GetDescendants()) do
                     if v.Name == 'SlideBeam' and v:IsA('BasePart') then
-                        sfb30BOK32v0.cl3C33vbo('b4j09B','Blood Traces Desolator Minamoto Clan of Elders','Wfu3HG0',v.Position - Vector3.new(1, 1, 0), v.Position + Vector3.new(0, -1, 1))
+                        sfb30BOK32v0.cl3C33vbo('b4j09B', 'Blood Traces Desolator Minamoto Clan of Elders', 'Wfu3HG0', v.Position - Vector3.new(1, 1, 0), v.Position + Vector3.new(0, -1, 1))
                     end
                 end
             end
         })
 
+        -- Info that the script has loaded
         alert('WAVES V' .. wavesVer .. ' loaded')
     end)
+
     if not _SL_SUC then
         -- Removed the following lines to prevent kicking the user and shutting down the game
         -- game:GetService('Players').LocalPlayer:Kick(ERR)
