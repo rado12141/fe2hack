@@ -34,10 +34,10 @@ if true then
 
         local clmain
         local function alert(text)
-            notifs.alert(text,Color3.new(0.8, 0.498039, 2))
+            notifs.alert(text, Color3.new(0.8, 0.498039, 2))
         end
 
-        for i,v in next, game:GetService('ReplicatedStorage').Remote:GetDescendants() do
+        for i, v in next, game:GetService('ReplicatedStorage').Remote:GetDescendants() do
             if v:IsA('RemoteFunction') then
                 v.OnClientInvoke = function()
                     wait(9e9)
@@ -49,9 +49,7 @@ if true then
         local olds
         olds = hookmetamethod(game, '__namecall', function(self, ...)
             local method = getnamecallmethod()
-            local args = {
-                ...
-            }
+            local args = { ... }
             if tostring(self) == 'Survived' and method == 'InvokeServer' then
                 args[3] = math.random(1,95) + math.random()
                 return olds(self, unpack(args))
@@ -97,7 +95,7 @@ if true then
         end
         function getButton()
             for i, v in next, workspace.Multiplayer:WaitForChild('Map'):GetDescendants() do
-                if (v.IsA(v, 'TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v.IsA(v, 'BasePart') and v.Name == 'ExitRegion') then
+                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     local btnthinglol = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
                     return btnthinglol
                 end
@@ -105,7 +103,7 @@ if true then
             local btncon = nil
             local btnawait = nil
             btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
-                if (v.IsA(v, 'TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v.IsA(v, 'BasePart') and v.Name == 'ExitRegion') then
+                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     btnawait = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
                     btncon:Disconnect()
                 end
@@ -127,7 +125,7 @@ if true then
             return btnawait
         end
         function Time(targetpos, skipComb)
-            local Combined = lplr.Character.Humanoid.RootPart.Position - targetpos
+            local Combined = lplr.Character.HumanoidRootPart.Position - targetpos
             local tme = ((Combined * Vector3.new(0.6, 0, 0.6)).Magnitude / 23)
             if skipComb then
                 return tme
@@ -143,11 +141,17 @@ if true then
                     task.wait(1)
                     sfb30BOK32v0.cl3C33vbo('b4j09B','Shinigami Gods Follow Me I am Empty Like Hollow','Wfu3HG0',nil)
                 end
+                -- **Start Autofarm Automatically for New Maps**
+                if getgenv().gettingbuttons then
+                    -- Delay to ensure the new map is fully loaded
+                    task.wait(2)
+                    FCon = task.spawn(startfarm)
+                end
             end
         end)
         workspace.Multiplayer.DescendantAdded:Connect(function(t)
             task.wait()
-            if string.match(string.lower(t.Name), 'water') and t.IsA(t, 'BasePart') and getgenv().waterwalk then
+            if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
                 t.CanCollide = true
             end
             if getgenv().gOpti then
@@ -225,11 +229,11 @@ if true then
             currtween = TWEEN
             TWEEN:Play()
             local finished = false
-            local connect;
+            local connect
             connect = TWEEN.Completed:Connect(function()
                 _hum.RootPart.Anchored = false
                 connect:Disconnect()
-                finished = true;
+                finished = true
             end)
             repeat
                 _hum.RootPart.Velocity = Vector3.zero
@@ -250,12 +254,12 @@ if true then
             end)
             if getgenv().changedEmote ~= 0 and getsenv then
                 local script = getsenv(char.Animate)
-                script.changeEmote(changedEmote)
+                script.changeEmote(getgenv().changedEmote)
             end
         end
         function exitRegionExists(map)
             local exitReg
-            for i,v in next, map:GetChildren() do
+            for i, v in next, map:GetChildren() do
                 if v.Name == 'ExitRegion' and v:IsA('BasePart') then
                     exitReg = v
                     break
@@ -294,8 +298,8 @@ if true then
         end)
         function float()
             task.spawn(function()
-                if gettingbuttons then
-                    fpart = Instance.new('Part', workspace)
+                if getgenv().gettingbuttons then
+                    local fpart = Instance.new('Part', workspace)
                     fpart.Name = 'floatpart'
                     fpart.Anchored = true
                     while task.wait() and getgenv().gettingbuttons do
@@ -347,7 +351,7 @@ if true then
             end
             local nInstance = Instance.new('StringValue', (workspace.Multiplayer:FindFirstChild('Map') and workspace.Multiplayer.Map or game:GetService('TestService')))
             nInstance.Name = randomGen
-            pcall(task.cancel,FCon)
+            pcall(task.cancel, FCon)
             getgenv().gettingbuttons = true
             _autofarmavali = false
             repeat
@@ -482,7 +486,10 @@ if true then
                 if getbtns then
                     FCon = task.spawn(startfarm)
                 else
-                    task.cancel(FCon)
+                    if FCon then
+                        task.cancel(FCon)
+                        FCon = nil
+                    end
                 end
             end,
         })
@@ -495,7 +502,7 @@ if true then
                     local _map
                     _map = workspace.Multiplayer:WaitForChild('Map')
                     for i, v in next, _map:GetDescendants() do
-                        if string.match(string.lower(v.Name), 'lost') and v.IsA(v, 'BasePart') then
+                        if string.match(string.lower(v.Name), 'lost') and v:IsA('BasePart') then
                             v.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
                         elseif (string.match(string.lower(v.Name), 'rescue')) and v:FindFirstChild('Contact') then
                             v.Contact.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
@@ -509,16 +516,25 @@ if true then
             CurrentValue = false,
             Callback = function(tper)
                 getgenv().tptoexit = tper
-                while task.wait(2) and getgenv().tptoexit do
-                    if not getgenv().tptoexit then
-                        break
-                    end
-                    local map = workspace.Multiplayer:WaitForChild('Map')
-                    for i, v in next, map:GetDescendants() do
-                        if v.Name == 'ExitRegion' then
-                            tp(v.CFrame, 4.5)
-                            task.wait(4.5)
+                if tper then
+                    FConTPExit = task.spawn(function()
+                        while task.wait(2) and getgenv().tptoexit do
+                            if not getgenv().tptoexit then
+                                break
+                            end
+                            local map = workspace.Multiplayer:WaitForChild('Map')
+                            for i, v in next, map:GetDescendants() do
+                                if v.Name == 'ExitRegion' then
+                                    tp(v.CFrame, 4.5)
+                                    task.wait(4.5)
+                                end
+                            end
                         end
+                    end)
+                else
+                    if FConTPExit then
+                        task.cancel(FConTPExit)
+                        FConTPExit = nil
                     end
                 end
             end,
@@ -528,7 +544,9 @@ if true then
             CurrentValue = false,
             Callback = function(gr)
                 getgenv().misc = gr
-                _autoget()
+                if gr then
+                    _autoget()
+                end
             end,
         })
         mainTab:CreateToggle({
@@ -544,8 +562,8 @@ if true then
             Callback = function(wwalk)
                 getgenv().waterwalk = wwalk
                 for i, t in next, workspace.Multiplayer.Map:GetDescendants() do
-                    if string.match(string.lower(t.Name), 'water') and t.IsA(t, 'BasePart') and getgenv().waterwalk then
-                        t.CanCollide = waterwalk
+                    if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
+                        t.CanCollide = getgenv().waterwalk
                     end
                 end
             end
@@ -555,17 +573,19 @@ if true then
             CurrentValue = false,
             Callback = function(Value)
                 getgenv().safespot = Value
-                task.spawn(function()
-                    while task.wait(5) and safespot do
-                        if not safespot then
-                            break
+                if Value then
+                    task.spawn(function()
+                        while task.wait(5) and getgenv().safespot do
+                            if not getgenv().safespot then
+                                break
+                            end
+                            if (lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude) < -250 then
+                                sfb30BOK32v0.cl3C33vbo('b4j09B','My Eyes are on You You are like Princess Mononoke','Wfu3HG0',nil)
+                                lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
+                            end
                         end
-                        if (lplr.Character.Humanoid.RootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.Humanoid.RootPart.Position - part.Position).Magnitude) < -250 then
-                            sfb30BOK32v0.cl3C33vbo('b4j09B','My Eyes are on You You are like Princess Mononoke','Wfu3HG0',nil)
-                            lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
-                        end
-                    end
-                end)
+                    end)
+                end
             end,
         })
         lpTab:CreateToggle({
@@ -586,7 +606,9 @@ if true then
             CurrentValue = 20,
             Callback = function(ws)
                 getgenv().walkspeed = ws
-                lplr.Character:WaitForChild('Humanoid').WalkSpeed = walkspeed
+                if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
+                    lplr.Character:FindFirstChildOfClass('Humanoid').WalkSpeed = getgenv().walkspeed
+                end
             end,
         })
         lpTab:CreateSlider({
@@ -599,7 +621,9 @@ if true then
             CurrentValue = 50,
             Callback = function(jp)
                 getgenv().jumppower = jp
-                lplr.Character:WaitForChild('Humanoid').JumpPower = jumppower
+                if lplr.Character and lplr.Character:FindFirstChildOfClass('Humanoid') then
+                    lplr.Character:FindFirstChildOfClass('Humanoid').JumpPower = getgenv().jumppower
+                end
             end,
         })
         miscTab:CreateToggle({
@@ -615,7 +639,9 @@ if true then
                 local Players = game:GetService('Players')
                 local function Change(Character)
                     local script = getsenv(Character.Animate)
-                    script.changeEmote(1584520816)
+                    if script and script.changeEmote then
+                        script.changeEmote(1584520816)
+                    end
                 end
                 Change(Players.LocalPlayer.Character)
                 local function newCharacter(Character)
