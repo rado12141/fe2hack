@@ -37,6 +37,7 @@ if true then
             notifs.alert(text, Color3.new(0.8, 0.498039, 2))
         end
 
+        -- Prevent RemoteFunctions from being exploited
         for i, v in next, game:GetService('ReplicatedStorage').Remote:GetDescendants() do
             if v:IsA('RemoteFunction') then
                 v.OnClientInvoke = function()
@@ -56,11 +57,13 @@ if true then
             end
             return olds(self, ...)
         end)
+
         local lib = Rayfield:CreateWindow({
             Name = "WAVES V" .. wavesVer .. " [FE2: V62.82]",
             LoadingTitle = ltitles[math.random(1, #ltitles)],
             LoadingSubtitle = subs[math.random(1, #subs)],
         })
+
         game:GetService("ReplicatedStorage").Remote.ClientTimelines.Teleport.OnClientEvent:Connect(function()
             if getgenv().gettingbuttons and currtween and currbutton then
                 currtween:Pause()
@@ -68,6 +71,8 @@ if true then
                 _lolteleported.Name = '_DoNotTeleportTimelines'
             end
         end)
+
+        -- Initialize global variables
         getgenv().godmode = nil
         getgenv().waterwalk = nil
         getgenv().muteemotes = nil
@@ -75,15 +80,22 @@ if true then
         getgenv().changedEmote = 0
         getgenv().walkspeed = 20
         getgenv().jumppower = 50
+        getgenv().gettingbuttons = true  -- Autofarm is always enabled
+        getgenv().safespot = false       -- Initialize as false; can be controlled if needed
+
         local infoTab = lib:CreateTab("Info")
         local mainTab = lib:CreateTab("Map")
         local lpTab = lib:CreateTab("LocalPlayer")
         local miscTab = lib:CreateTab("Misc")
         local challengeTab = lib:CreateTab("Challenges")
+
+        -- Info Tab Labels
         infoTab:CreateLabel('[⚠️/x] - where x is chance of getting anticheated')
         infoTab:CreateLabel('[✅] - Tested and safe')
         infoTab:CreateLabel("V2.5:")
         infoTab:CreateLabel('[~] Fixed the script after the security update')
+
+        -- Utility Functions
         function isRandomString(str)
             for i = 1, #str do
                 local ltr = str:sub(i, i)
@@ -93,9 +105,11 @@ if true then
             end
             return true
         end
+
         function getButton()
             for i, v in next, workspace.Multiplayer:WaitForChild('Map'):GetDescendants() do
-                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
+                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) 
+                or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     local btnthinglol = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
                     return btnthinglol
                 end
@@ -103,7 +117,8 @@ if true then
             local btncon = nil
             local btnawait = nil
             btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
-                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
+                if (v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) 
+                or (v:IsA('BasePart') and v.Name == 'ExitRegion') then
                     btnawait = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
                     btncon:Disconnect()
                 end
@@ -124,6 +139,7 @@ if true then
             end
             return btnawait
         end
+
         function Time(targetpos, skipComb)
             local Combined = lplr.Character.HumanoidRootPart.Position - targetpos
             local tme = ((Combined * Vector3.new(0.6, 0, 0.6)).Magnitude / 23)
@@ -135,6 +151,7 @@ if true then
             end
             return tme - _autofarmdelay
         end
+
         workspace.Multiplayer.ChildAdded:Connect(function(v)
             if v.Name == 'Map' then
                 if getgenv().skipLoading then
@@ -149,6 +166,7 @@ if true then
                 end
             end
         end)
+
         workspace.Multiplayer.DescendantAdded:Connect(function(t)
             task.wait()
             if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
@@ -160,16 +178,19 @@ if true then
                 end
             end
         end)
+
         local function decimalRandom(minimum, maximum)
             return math.random() * (maximum - minimum) + minimum
         end
+
         local Synced = true
         local RootPart, RootClone
+
         local function desync()
             local Char = lplr.Character
             if Synced == true and Char then
                 Synced = false
-                --desync rootpart
+                -- Desync rootpart
                 Char.Parent = game:GetService('ReplicatedStorage')
                 RootPart = Char.HumanoidRootPart
                 RootPart.CFrame = RootPart.CFrame
@@ -184,6 +205,7 @@ if true then
                 Char.Parent = workspace
             end
         end
+
         local function sync()
             local Char = lplr.Character
             if Synced == false and Char then
@@ -197,6 +219,7 @@ if true then
                 Char.Parent = workspace
             end
         end
+
         function fetchZipline()
             if workspace.Multiplayer:FindFirstChild('Map') then
                 local isZipline, ziplinePart
@@ -215,6 +238,7 @@ if true then
                 return false
             end
         end
+
         function tp(cframe, speed, exr)
             local plr = game:GetService("Players").LocalPlayer.Character
             local _hum = plr:FindFirstChildOfClass('Humanoid')
@@ -243,8 +267,9 @@ if true then
             _hum.RootPart.Anchored = false
             currtween = nil
         end
+
         function handler()
-            char = lplr.Character
+            local char = lplr.Character
             char:WaitForChild('Humanoid')
             char.Humanoid:GetPropertyChangedSignal('Health'):Connect(function()
                 if getgenv().godmode then
@@ -254,9 +279,12 @@ if true then
             end)
             if getgenv().changedEmote ~= 0 and getsenv then
                 local script = getsenv(char.Animate)
-                script.changeEmote(getgenv().changedEmote)
+                if script and script.changeEmote then
+                    script.changeEmote(getgenv().changedEmote)
+                end
             end
         end
+
         function exitRegionExists(map)
             local exitReg
             for i, v in next, map:GetChildren() do
@@ -279,23 +307,27 @@ if true then
                 return false
             end
         end
+
         handler()
+
         lplr.CharacterAdded:Connect(function(char)
             handler()
             task.wait(5)
-            lplr.Character:WaitForChild('Humanoid').WalkSpeed = getgenv().walkspeed
-            lplr.Character.Humanoid.JumpPower = getgenv().jumppower
-            lplr.Character:WaitForChild('Humanoid'):GetPropertyChangedSignal('WalkSpeed'):Connect(function()
-                if lplr.Character:WaitForChild('Humanoid').WalkSpeed < getgenv().walkspeed then
-                    lplr.Character:WaitForChild('Humanoid').WalkSpeed = getgenv().walkspeed
+            local humanoid = char:WaitForChild('Humanoid')
+            humanoid.WalkSpeed = getgenv().walkspeed
+            humanoid.JumpPower = getgenv().jumppower
+            humanoid:GetPropertyChangedSignal('WalkSpeed'):Connect(function()
+                if humanoid.WalkSpeed < getgenv().walkspeed then
+                    humanoid.WalkSpeed = getgenv().walkspeed
                 end
             end)
-            lplr.Character:WaitForChild('Humanoid'):GetPropertyChangedSignal('JumpPower'):Connect(function()
-                if lplr.Character:WaitForChild('JumpPower').JumpPower < getgenv().jumppower then
-                    lplr.Character:WaitForChild('JumpPower').JumpPower = getgenv().jumppower
+            humanoid:GetPropertyChangedSignal('JumpPower'):Connect(function()
+                if humanoid.JumpPower < getgenv().jumppower then
+                    humanoid.JumpPower = getgenv().jumppower
                 end
             end)
         end)
+
         function float()
             task.spawn(function()
                 if getgenv().gettingbuttons then
@@ -308,9 +340,11 @@ if true then
                 end
             end)
         end
+
         local waypoints
         local DeathConnection, TCon1, TCon2, FCon, alreadyConnected, reconCon, dieDelay
         dieDelay = 0
+
         local function newreconnect()
             DeathConnection = lplr.CharacterRemoving:Connect(function()
                 dieDelay = 0
@@ -359,6 +393,7 @@ if true then
             until not workspace:WaitForChild('Multiplayer'):WaitForChild('Map'):FindFirstChild(randomGen)
             FCon = task.spawn(startfarm)
         end
+
         function startfarm()
             while game:GetService('RunService').Heartbeat:Wait() do
                 if not getgenv().gettingbuttons then
@@ -394,8 +429,8 @@ if true then
                             _remoteCon:Disconnect()
                             dieDelay = dieDelay +  1
                             if dieDelay >= 2 then
-                                -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState('Dead')
                                 -- Removed killing user
+                                -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState('Dead')
                             end
                         end)
                         task.wait(0.2)
@@ -411,8 +446,8 @@ if true then
                         ExitRegion.Size = olderegionsize
                     end)
                     if not successEND then
+                        -- Removed killing user
                         -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState(Enum.HumanoidStateType.Dead)
-                        -- Removed code that kills user
                         warn(errEND)
                         alert('FATAL ERROR: ' .. errEND)
                     end
@@ -424,8 +459,8 @@ if true then
                 if not sex then
                     alert('FATAL ERROR: ' .. esex)
                     task.wait(1)
+                    -- Removed killing user
                     -- lplr.Character:FindFirstChildOfClass('Humanoid'):ChangeState(Enum.HumanoidStateType.Dead)
-                    -- Removed code that kills user
                 end
                 if not map:FindFirstChild('waves.config') then
                     alert('Creating "waves.config" folder')
@@ -453,8 +488,8 @@ if true then
                 local _TPTime = Time(button.Position)
                 hrp.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 20, 0))
                 if typeof(_TPTime) == 'number' and _TPTime > 65 then
+                    -- Removed killing user
                     -- lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
-                    -- Removed code that kills user
                     alert('>65s tp time. cancelling.')
                 end
                 if _TPTime == 'Teleport' then
@@ -478,21 +513,10 @@ if true then
                 currbutton = nil
             end
         end
-        mainTab:CreateToggle({
-            Name = "Autofarm [✅, EXEC IN THE MAP]",
-            CurrentValue = false,
-            Callback = function(getbtns)
-                getgenv().gettingbuttons = getbtns
-                if getbtns then
-                    FCon = task.spawn(startfarm)
-                else
-                    if FCon then
-                        task.cancel(FCon)
-                        FCon = nil
-                    end
-                end
-            end,
-        })
+
+        -- **Autofarm is always enabled; no toggle needed**
+        task.spawn(startfarm)
+
         function _autoget()
             task.spawn(function()
                 while task.wait(3) and getgenv().misc do
@@ -511,6 +535,40 @@ if true then
                 end
             end)
         end
+
+        -- **Removed Autofarm Toggle from UI**
+
+        -- Removed the Autofarm toggle from the UI to make it always active
+        -- mainTab:CreateToggle({
+        --     Name = "Autofarm [✅, EXEC IN THE MAP]",
+        --     CurrentValue = false,
+        --     Callback = function(getbtns)
+        --         getgenv().gettingbuttons = getbtns
+        --         if getbtns then
+        --             FCon = task.spawn(startfarm)
+        --         else
+        --             if FCon then
+        --                 task.cancel(FCon)
+        --                 FCon = nil
+        --             end
+        --         end
+        --     end,
+        -- })
+
+        -- **Start Autofarm Automatically for Existing and New Maps**
+        -- Since Autofarm is always enabled, ensure startfarm runs on script load
+        -- and on any new map loaded
+
+        -- **Note:** Ensure that 'startfarm' is defined before calling it
+
+        -- Modify the mainTab to remove the Autofarm toggle and possibly remove related UI elements
+        -- Alternatively, keep the other UI elements as needed
+
+        -- Continue with other UI elements and functionalities
+
+        -- **Additional UI Elements:**
+
+        -- AutoTP to ExitRegion Toggle
         mainTab:CreateToggle({
             Name = 'AutoTP to ExitRegion [⚠️/very low]',
             CurrentValue = false,
@@ -539,6 +597,8 @@ if true then
                 end
             end,
         })
+
+        -- Auto Get Lost Pages/Escapees Toggle
         mainTab:CreateToggle({
             Name = 'Auto Get Lost Pages/Escapees [✅]',
             CurrentValue = false,
@@ -549,6 +609,8 @@ if true then
                 end
             end,
         })
+
+        -- Skip Loading Toggle
         mainTab:CreateToggle({
             Name = 'Skip Loading [✅]',
             CurrentValue = false,
@@ -556,6 +618,8 @@ if true then
                 getgenv().skipLoading = value
             end,
         })
+
+        -- Water Walk Toggle
         mainTab:CreateToggle({
             Name = 'Water Walk [✅]',
             CurrentValue = false,
@@ -568,6 +632,8 @@ if true then
                 end
             end
         })
+
+        -- Auto Safespot Toggle
         mainTab:CreateToggle({
             Name = 'Auto Safespot [✅]',
             CurrentValue = false,
@@ -588,6 +654,10 @@ if true then
                 end
             end,
         })
+
+        -- LocalPlayer Tab Toggles and Sliders
+
+        -- GodMode Toggle
         lpTab:CreateToggle({
             Name = 'GodMode [✅]',
             CurrentValue = false,
@@ -596,6 +666,8 @@ if true then
                 handler()
             end,
         })
+
+        -- WalkSpeed Slider
         lpTab:CreateSlider({
             Name = "WalkSpeed [✅]",
             Range = {
@@ -611,6 +683,8 @@ if true then
                 end
             end,
         })
+
+        -- JumpPower Slider
         lpTab:CreateSlider({
             Name = "JumpPower [✅]",
             Range = {
@@ -626,6 +700,10 @@ if true then
                 end
             end,
         })
+
+        -- Misc Tab Toggles and Buttons
+
+        -- Autofarm Optimization Toggle
         miscTab:CreateToggle({
             Name = 'Autofarm Optimization [✅, BE IN THE LIFT]',
             CurrentValue = false,
@@ -633,6 +711,8 @@ if true then
                 getgenv().gOpti = ao
             end
         })
+
+        -- VIP Emote Bypass Button
         miscTab:CreateButton({
             Name = 'VIP Emote Bypass [✅]',
             Callback = function()
@@ -651,6 +731,8 @@ if true then
                 Players.LocalPlayer.CharacterAdded:Connect(newCharacter)
             end
         })
+
+        -- Don't Save Session Data Button
         miscTab:CreateButton({
             Name = "Don't Save Session Data [✅]",
             Callback = function()
@@ -658,12 +740,18 @@ if true then
                 alert("✅ After you will server hop, you'll have the same stats as of now [Currency, XP, Level]")
             end
         })
+
+        -- Challenges Tab Buttons
+
+        -- Regenerate Air Button
         challengeTab:CreateButton({
             Name = 'Regenerate Air',
             Callback = function()
                 sfb30BOK32v0.cl3C33vbo('b4j09B','Kiss of Heated Steel Soul Burning with Cold','Wfu3HG0',5000)
             end
         })
+
+        -- Slide Under Barriers Button
         challengeTab:CreateButton({
             Name = 'Slide Under Barriers',
             Callback = function()
@@ -674,6 +762,7 @@ if true then
                 end
             end
         })
+
         alert('WAVES V' .. wavesVer .. ' loaded')
     end)
     if not _SL_SUC then
