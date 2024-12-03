@@ -325,20 +325,6 @@ if true then
                     getgenv().gettingbuttons = false
                     task.cancel(FCon)
                     -- Removed code that changes humanoid state to dead
-                    --[[ 
-                    repeat
-                        task.wait()
-                    until lplr.Character
-                    for i = 0, 4 do
-                        sfb30BOK32v0.cl3C33vbo('b4j09B','My Eyes are on You You are like Princess Mononoke','Wfu3HG0',nil)
-                        task.wait(1)
-                    end
-                    repeat
-                        task.wait()
-                    until not workspace:WaitForChild('Multiplayer'):WaitForChild('Map'):FindFirstChild(randomGen)
-                    getgenv().gettingbuttons = true
-                    FCon = task.spawn(startfarm)
-                    ]]
                 end
             end)
             if reconCon then
@@ -468,8 +454,13 @@ if true then
                     end
                 end
                 hrp.CFrame = CFrame.new(button.Position)
-                local pdata_lol = Instance.new('BindableFunction', btns)
-                pdata_lol.Name = randomGen2
+                -- Click the button twice
+                for i = 1, 2 do
+                    local newGen = game:GetService('HttpService'):GenerateGUID(false):gsub('-',''):lower()
+                    local pdata_lol = Instance.new('BindableFunction', btns)
+                    pdata_lol.Name = newGen
+                    task.wait(0.1)
+                end
                 _autofarmavali = false
                 currbutton = nil
             end
