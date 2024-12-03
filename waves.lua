@@ -99,14 +99,16 @@ if true then
         end
         function getButton()
             for i, v in next, workspace.Multiplayer:WaitForChild('Map'):GetDescendants() do
-                if ((v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not clickedButtons[v.Parent]) or (v:IsA('BasePart') and v.Name == 'ExitRegion')) then
+                local buttonIdentifier = v:IsA('TouchTransmitter') and v.Parent.Name or v.Name
+                if ((v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not clickedButtons[buttonIdentifier]) or (v:IsA('BasePart') and v.Name == 'ExitRegion')) then
                     return v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot'
                 end
             end
             local btncon = nil
             local btnawait = nil
             btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
-                if ((v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not clickedButtons[v.Parent]) or (v:IsA('BasePart') and v.Name == 'ExitRegion')) then
+                local buttonIdentifier = v:IsA('TouchTransmitter') and v.Parent.Name or v.Name
+                if ((v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not clickedButtons[buttonIdentifier]) or (v:IsA('BasePart') and v.Name == 'ExitRegion')) then
                     btnawait = v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot'
                     btncon:Disconnect()
                 end
@@ -463,10 +465,11 @@ if true then
                     task.wait(0.1)
                 end
                 -- Increment click count
-                if clickedButtons[btns] then
-                    clickedButtons[btns] = clickedButtons[btns] + 2
+                local buttonIdentifier = btns:IsA('TouchTransmitter') and btns.Parent.Name or btns.Name
+                if clickedButtons[buttonIdentifier] then
+                    clickedButtons[buttonIdentifier] = clickedButtons[buttonIdentifier] + 2
                 else
-                    clickedButtons[btns] = 2
+                    clickedButtons[buttonIdentifier] = 2
                 end
                 _autofarmavali = false
                 currbutton = nil
@@ -558,7 +561,7 @@ if true then
                         if not safespot then
                             break
                         end
-                        if (lplr.Character.Humanoid.RootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.Humanoid.RootPart.Position - part.Position).Magnitude) < -250 then
+                        if (lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude > 250 or ((lplr.Character.HumanoidRootPart.Position - part.Position).Magnitude) < -250 then
                             sfb30BOK32v0.cl3C33vbo('b4j09B','My Eyes are on You You are like Princess Mononoke','Wfu3HG0',nil)
                             lplr.Character:WaitForChild('HumanoidRootPart').CFrame = CFrame.new(part.Position + Vector3.new(0, 5, 0))
                         end
