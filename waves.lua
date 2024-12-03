@@ -77,6 +77,8 @@ if true then
         getgenv().changedEmote = 0
         getgenv().walkspeed = 20
         getgenv().jumppower = 50
+        local clickedButtons = {} -- Table to track click counts
+
         local infoTab = lib:CreateTab("Info")
         local mainTab = lib:CreateTab("Map")
         local lpTab = lib:CreateTab("LocalPlayer")
@@ -97,16 +99,15 @@ if true then
         end
         function getButton()
             for i, v in next, workspace.Multiplayer:WaitForChild('Map'):GetDescendants() do
-                if (v.IsA(v, 'TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v.IsA(v, 'BasePart') and v.Name == 'ExitRegion') then
-                    local btnthinglol = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
-                    return btnthinglol
+                if ((v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not clickedButtons[v.Parent]) or (v:IsA('BasePart') and v.Name == 'ExitRegion')) then
+                    return v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot'
                 end
             end
             local btncon = nil
             local btnawait = nil
             btncon = workspace.Multiplayer.Map.DescendantAdded:Connect(function(v)
-                if (v.IsA(v, 'TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not v.Parent:FindFirstChild(randomGen2) and not v.Parent:FindFirstChild('_DoNotTeleportTimelines')) or (v.IsA(v, 'BasePart') and v.Name == 'ExitRegion') then
-                    btnawait = (v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot')
+                if ((v:IsA('TouchTransmitter') and v.Parent.Name:upper() == v.Parent.Name and not clickedButtons[v.Parent]) or (v:IsA('BasePart') and v.Name == 'ExitRegion')) then
+                    btnawait = v:IsA('TouchTransmitter') and v.Parent or 'ExitRegionDoNot'
                     btncon:Disconnect()
                 end
             end)
@@ -147,7 +148,7 @@ if true then
         end)
         workspace.Multiplayer.DescendantAdded:Connect(function(t)
             task.wait()
-            if string.match(string.lower(t.Name), 'water') and t.IsA(t, 'BasePart') and getgenv().waterwalk then
+            if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
                 t.CanCollide = true
             end
             if getgenv().gOpti then
@@ -250,7 +251,7 @@ if true then
             end)
             if getgenv().changedEmote ~= 0 and getsenv then
                 local script = getsenv(char.Animate)
-                script.changeEmote(changedEmote)
+                script.changeEmote(getgenv().changedEmote)
             end
         end
         function exitRegionExists(map)
@@ -294,8 +295,8 @@ if true then
         end)
         function float()
             task.spawn(function()
-                if gettingbuttons then
-                    fpart = Instance.new('Part', workspace)
+                if getgenv().gettingbuttons then
+                    local fpart = Instance.new('Part', workspace)
                     fpart.Name = 'floatpart'
                     fpart.Anchored = true
                     while task.wait() and getgenv().gettingbuttons do
@@ -461,6 +462,12 @@ if true then
                     pdata_lol.Name = newGen
                     task.wait(0.1)
                 end
+                -- Increment click count
+                if clickedButtons[btns] then
+                    clickedButtons[btns] = clickedButtons[btns] + 2
+                else
+                    clickedButtons[btns] = 2
+                end
                 _autofarmavali = false
                 currbutton = nil
             end
@@ -486,7 +493,7 @@ if true then
                     local _map
                     _map = workspace.Multiplayer:WaitForChild('Map')
                     for i, v in next, _map:GetDescendants() do
-                        if string.match(string.lower(v.Name), 'lost') and v.IsA(v, 'BasePart') then
+                        if string.match(string.lower(v.Name), 'lost') and v:IsA('BasePart') then
                             v.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
                         elseif (string.match(string.lower(v.Name), 'rescue')) and v:FindFirstChild('Contact') then
                             v.Contact.CFrame = CFrame.new(lplr.Character.HumanoidRootPart.Position)
@@ -535,8 +542,8 @@ if true then
             Callback = function(wwalk)
                 getgenv().waterwalk = wwalk
                 for i, t in next, workspace.Multiplayer.Map:GetDescendants() do
-                    if string.match(string.lower(t.Name), 'water') and t.IsA(t, 'BasePart') and getgenv().waterwalk then
-                        t.CanCollide = waterwalk
+                    if string.match(string.lower(t.Name), 'water') and t:IsA('BasePart') and getgenv().waterwalk then
+                        t.CanCollide = true
                     end
                 end
             end
